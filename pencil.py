@@ -11,7 +11,7 @@ BLUE = (0, 0, 255)
 
 colors = [BLACK, RED, GREEN, BLUE]
 
-v = 0 #version of the data to read 
+v = 1 #version of the data to read 
 img = Image.open("canvas.png")
 w, h = img.size
 
