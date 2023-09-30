@@ -11,7 +11,7 @@ BLUE = (0, 0, 255)
 
 colors = [BLACK, RED, GREEN, BLUE]
 
-v = 1 #version of the data to read 
+v = 2 #version of the data to read 
 img = Image.open("canvas.png")
 w, h = img.size
 
@@ -31,7 +31,7 @@ def inBounds(pos):
 	return (0 <= pos[0] < w and 0 <= pos[1] < h)
 
 def drawPoint(pos, color):
-	if (inBounds(pos)):
+	if (inBounds(pos)): # just in case a point happens to be outisde of the image
 		img.putpixel(pos, color)
 	
 def drawCircle(pos, r, color):
@@ -42,7 +42,7 @@ def drawCircle(pos, r, color):
 		x = round(pos[0] + r*math.cos((pi2)*i/p))
 		y = round(pos[1] + r*math.sin((pi2)*i/p))
 		
-		if (inBounds((x, y))):
+		if (inBounds((x, y))): # just in case a point happens to be outisde of the image
 			img.putpixel((x, y), color)
 	
 def drawLine(pos, color):
@@ -77,6 +77,36 @@ def drawLine(pos, color):
 		
 		xy[not s] += dxy[not s] # moving the coordinate with the greatest difference
 		
+def drawPolinomial(coeffs, interval, offset, scale, color):
+
+	pos = list(offset)
+	prevY = offset[1]
+
+	# calculating interval[1] - interval[0] values for the polinomial
+	for i_ in range(interval[0], interval[1]):
+	
+		i = i_ * scale # x value of the function
+	
+		if i_ > interval[0]: pos[0] += 1; # x value in the drawing
+		
+		k = 0
+		for c in range(len(coeffs)):
+			k -= coeffs[c]*(i**c) #calculating the y value of the function
+		pos[1] = offset[1] + round(k/scale) # x value in the drawing
+		
+		# filling the pixels between the new point and the previous one
+		for j in range(abs(prevY - pos[1])):
+			
+			jPos = (pos[0], prevY + (j + 1)*sign(pos[1] - prevY))
+			
+			if (inBounds(jPos)):
+				img.putpixel(jPos, BLACK)
+		
+		if (inBounds(pos)): # just in case a point happens to be outisde of the image
+			img.putpixel(pos, color)
+		
+		prevY = pos[1]
+	
 
 def readNTuple(i, data, n = 2):
 	s = ""
@@ -88,7 +118,7 @@ def readNTuple(i, data, n = 2):
 			s += data[i + j + 1]
 		
 		else: # reached the end of a number
-			v.append(int(s))
+			v.append(int(s) if s.find('.') == -1 else float(s))
 			k += 1
 			s = ""
 		if k == n: # after k values have been read, return the ntuple
@@ -122,6 +152,15 @@ while True:
 		s, ntuple, j = readNTuple(i, data, 3)
 		i += j
 		drawCircle(ntuple[0:2], ntuple[2], BLACK)
+		
+	if s == "f": # polinomial
+		s, ntuple, j = readNTuple(i, data, 6)
+		i += j
+		
+		# reading coefficients
+		s, coeffs, j = readNTuple(i, data, ntuple[0])
+		i += j
+		drawPolinomial(coeffs, ntuple[1:3], ntuple[3:5], ntuple[5], BLACK)
 	
 	i += 1
 	if i >= len(data): 
