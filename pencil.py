@@ -11,7 +11,7 @@ BLUE = (0, 0, 255)
 
 colors = [BLACK, RED, GREEN, BLUE]
 
-v = 2 #version of the data to read 
+v = 3 #version of the data to read 
 img = Image.open("canvas.png")
 w, h = img.size
 
@@ -106,6 +106,22 @@ def drawPolinomial(coeffs, interval, offset, scale, color):
 			img.putpixel(pos, color)
 		
 		prevY = pos[1]
+
+def drawRect(pos1, pos2):
+
+    dx = pos2[0] - pos1[0]
+    dy = pos2[1] - pos1[1]
+
+    #TODO check inBounds
+
+    for i in range(abs(dx)):
+        img.putpixel((pos1[0] + i, pos1[1]), BLACK);
+        img.putpixel((pos1[0] + i, pos2[1]), BLACK);
+
+    for i in range(abs(dy) + 1):
+        img.putpixel((pos1[0], pos1[1] + i), BLACK);
+        img.putpixel((pos2[0], pos1[1] + i), BLACK);
+        
 	
 
 def readNTuple(i, data, n = 2):
@@ -135,37 +151,42 @@ s = ""
 i = 0
 l = len(data)
 while True:
-	printProgress(i, l)
-	
-	s += data[i]
-	if s == "p": # point
-		s, ntuple, j = readNTuple(i, data)
-		i += j
-		drawPoint(ntuple, BLACK)
+    printProgress(i, l)
 
-	if s == "l": # line
-		s, ntuple, j = readNTuple(i, data, 4)
-		i += j
-		drawLine(ntuple, colors[rnd.randint(0, 3)])
-		
-	if s == "c": # circle
-		s, ntuple, j = readNTuple(i, data, 3)
-		i += j
-		drawCircle(ntuple[0:2], ntuple[2], BLACK)
-		
-	if s == "f": # polinomial
-		s, ntuple, j = readNTuple(i, data, 6)
-		i += j
-		
-		# reading coefficients
-		s, coeffs, j = readNTuple(i, data, ntuple[0])
-		i += j
-		drawPolinomial(coeffs, ntuple[1:3], ntuple[3:5], ntuple[5], BLACK)
+    s += data[i]
+    if s == "p": # point
+        s, ntuple, j = readNTuple(i, data)
+        i += j
+        drawPoint(ntuple, BLACK)
+
+    if s == "l": # line
+        s, ntuple, j = readNTuple(i, data, 4)
+        i += j
+        drawLine(ntuple, colors[rnd.randint(0, 3)])
+
+    if s == "c": # circle
+        s, ntuple, j = readNTuple(i, data, 3)
+        i += j
+        drawCircle(ntuple[0:2], ntuple[2], BLACK)
+
+    if s == "f": # polinomial
+        s, ntuple, j = readNTuple(i, data, 6)
+        i += j
+
+        # reading coefficients
+        s, coeffs, j = readNTuple(i, data, ntuple[0])
+        i += j
+        drawPolinomial(coeffs, ntuple[1:3], ntuple[3:5], ntuple[5], BLACK)
+
+    if s == "r":
+        s, ntuple, j = readNTuple(i, data, 4)
+        i += j
+        drawRect((ntuple[0],ntuple[1]),(ntuple[2],ntuple[3]))
 	
-	i += 1
-	if i >= len(data): 
-		print("\n --- Drawing Complete ---")
-		break
+    i += 1
+    if i >= len(data): 
+        print("\n --- Drawing Complete ---")
+        break
 
 # --- saving file ---
 n = 0

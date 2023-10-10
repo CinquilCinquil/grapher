@@ -1,7 +1,7 @@
 import math
 import random as rnd
 
-v = 2 # version of the data to write
+v = 3 # version of the data to write
 file = open(f"data{v}.txt", 'w')
 
 def writePoint(x, y):
@@ -50,7 +50,11 @@ def writeTree(x, y, n, r):
 	writeTree(int(x - 512*r), y + 60, int(n/2), math.pow(r*0.75, 1.2))
 	writeTree(int(x + 512*r), y + 60, int(n/3), math.pow(r*0.75, 1.2))
 
+def writeRectangle(x1, y1, x2, y2):
+	file.write(f"r{x1},{y1},{x2},{y2},")
+
 #writeTree(1024, 60, 64, 0.75)
-writePolinomial([0, 1, -1, -2, 1], [0, 512], [1024, 1024], 0.005)
+#writePolinomial([0, 1, -1, -2, 1], [0, 512], [1024, 1024], 0.005)
+writeRectangle(10, 10, 200, 200);
 
 file.close()
